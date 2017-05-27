@@ -1,3 +1,71 @@
 <resources>
     <string name="app_name">GiecOta</string>
+    <string name="title_activity_download_dialog">Update...</string>
+    <!--  changed -->
+    <string name="permlab_showUI">Show UI for firmware update.</string>
+    <string name="permdesc_shwoUI">Show UI for firmware update.</string>
+    <!--  Firmware updating dialog strings  -->
+    <string name="updating_title">Firmware Updating</string>
+    <string name="updating_message_formate">A update package file is found : \'%1$s\'. Would you like to install the package?</string>
+    <string name="updating_button_install">Install</string>
+    <string name="updating_button_cancel">Cancel</string>
+    <string name="updating_prompt">Checking system. Device is going to reboot and update firmware. Please keep the power cord connected!</string>
+    <string name="updating_prompt_sdcard">Do NOT remove SD card from the device!</string>
+    <!--  changed -->
+    <!--  Invalid Firmware Image Activity (IFIA)-->
+    <string name="IFIA_title">Invalid firmware image</string>
+    <string name="IFIA_msg">Found an invalid firmware image file \'%1$s\'. Would you like to delete it?</string>
+    <!--  changed -->
+    <string name="IFIA_btn_yes">UPDATE</string>
+    <string name="IFIA_btn_no">EXIT</string>
+    <!--  No Image Activity (NIA)-->
+    <string name="NIA_title">No update image file</string>
+    <string name="NIA_msg_format">There is no firmware image file in directory \'%1$s\' and \'%2$s\'!</string>
+    <string name="NIA_btn_ok">OK</string>
+    <string name="ask_delete_package">Delete the new firmware package ? \n(Recommended)</string>
+    <string name="update_success">Upgrade succeeded!</string>
+    <!--  changed -->
+    <string name="update_failed">Firmware update failed!</string>
+    <!--  changed -->
+    <string name="state_idle">State: Idle</string>
+    <string name="downloading">Downloading</string>
+    <string name="ota_update">An update has been found!\nYour tablet is ready to get even better with this upgrade\n
+which will provide the latest features and improvements.\nPlease be patient as the tablet receives a system software update.\n</string>
+    <string name="ota_package_version">Upgrade package version </string>
+    <string name="ota_package_size">. Size: </string>
+    <string name="ota_package_quest">\nUpgrade now ? </string>
+    <string name="start">Start</string>
+    <string name="starting">Starting</string>
+    <string name="retry">Retry</string>
+    <string name="pause">Pause</string>
+    <string name="stoping">Stoping</string>
+    <string name="cancel_update">Cancel Download</string>
+    <!--  changed -->
+    <string name="auto_check">Auto check update</string>
+    <string name="check_now">Check now</string>
+    <string name="low_battery">This update requires at least 20% battery.</string>
+
+
+    <string name="pb_title_downloading">Upgrade package is being downloaded</string>
+    <string name="pb_title_pause">Upgrade package is being paused</string>
+    <string name="remain_time">Remaining Time:</string>
+    <string name="current_new">The current version is the latest!</string>
+    <string name="error_display">Network error, please try again later!</string>
+    <!-- Download Image Error Activity (CIEA)-->
+    <string name="CIEA_title">Download Update Package</string>
+    <!-- add  -->
+
+    <string name="version_number_tittle">ANDROID %1$s</string>
+    <string name="phone_model">Model：</string>
+    <string name="btn_check_now">Check for Updates</string>
+    <string-array name="menu_items">
+        <item name="auto_check">Updates Automatically</item>
+
+
+    </string-array>
+    <string name="tv_update_log_tittle1">The current version update log</string>
+    <string name="tv_update_log_tittle2">Android 7.0</string>
+    <string name="bt_pause">pause</string>
+    <string name="bt_cancel">cancel</string>
+    <!-- end -->
 </resources>

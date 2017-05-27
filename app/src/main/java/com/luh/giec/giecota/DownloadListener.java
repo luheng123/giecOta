@@ -5,7 +5,7 @@ package com.luh.giec.giecota;
  */
 
 public interface DownloadListener {
-    void onProgress(int progress);
+    void onProgress(Integer... values);
 
     void onSuccess();
 

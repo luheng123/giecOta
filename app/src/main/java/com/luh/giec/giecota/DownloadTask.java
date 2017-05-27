@@ -1,7 +1,10 @@
 package com.luh.giec.giecota;
 
 import android.os.AsyncTask;
+import android.os.Bundle;
 import android.os.Environment;
+import android.os.Handler;
+import android.os.Message;
 import android.util.Log;
 
 import com.luh.giec.giecota.util.HttpUtil;
@@ -38,6 +41,9 @@ public class DownloadTask extends AsyncTask<String, Integer, Integer> {
 
     private int lastProgress;
 
+    long contentLength;
+
+
     public DownloadTask(DownloadListener listener) {
         this.listener = listener;
     }
@@ -59,7 +65,8 @@ public class DownloadTask extends AsyncTask<String, Integer, Integer> {
                 downloadedLength = file.length();
                 Log.d(TAG, "file exists");
             }
-            long contentLength = getContentLength(downloadUrl);
+            contentLength = getContentLength(downloadUrl);
+            Log.d(TAG, "contentLength=" + contentLength);
             if (contentLength == 0) {
                 Log.d(TAG, "contentLength=0");
                 return TYPE_FAILED;
@@ -89,8 +96,11 @@ public class DownloadTask extends AsyncTask<String, Integer, Integer> {
                     } else {
                         total += len;
                         saveFile.write(b, 0, len);
-                        int progress = (int) ((total + downloadedLength) * 100 / contentLength);
-                        publishProgress(progress);
+
+                        Integer values[] = {(int) ((total + downloadedLength) * 100 /
+                                contentLength), (int) (total + downloadedLength) / 1024 / 1024,
+                                (int) contentLength / 1024 / 1024};
+                        publishProgress(values);
                     }
                 }
                 response.body().close();
@@ -121,7 +131,7 @@ public class DownloadTask extends AsyncTask<String, Integer, Integer> {
     protected void onProgressUpdate(Integer... values) {
         int progress = values[0];
         if (progress > lastProgress) {
-            listener.onProgress(progress);
+            listener.onProgress(values);
             lastProgress = progress;
         }
     }
@@ -152,6 +162,7 @@ public class DownloadTask extends AsyncTask<String, Integer, Integer> {
     public void cancelDownload() {
         isCanceled = true;
     }
+
 
     private long getContentLength(String downloadUrl) throws IOException {
         OkHttpClient client = new OkHttpClient();

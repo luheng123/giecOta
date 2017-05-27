@@ -1,20 +1,130 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
+<android.support.v4.widget.DrawerLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
-
+    android:id="@+id/layout_drawer"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical">
+    android:layout_height="match_parent">
 
-    <Button
-        android:id="@+id/checkUpdate_bt"
+    <LinearLayout
         android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/colorBackGround"
+        android:orientation="vertical"
+        >
+
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="4">
+
+            <TextView
+                android:id="@+id/tv_version_tittle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerInParent="true"
+                android:text="@string/version_number_tittle"
+                android:textColor="@color/colorBlack"
+                android:textSize="44sp"/>
+
+            <ImageButton
+                android:id="@+id/btn_menu"
+                android:layout_width="60dp"
+                android:layout_height="50dp"
+                android:layout_alignParentRight="true"
+                android:layout_alignParentTop="true"
+                android:layout_margin="50dp"
+                android:background="@drawable/menu"
+                />
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="3">
+
+            <TextView
+                android:id="@+id/tv_phoneBrand"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerInParent="true"
+                android:textColor="@color/colorBlack"
+                android:textSize="18sp"
+                />
+
+            <TextView
+                android:id="@+id/tv_phoneModel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/tv_phoneBrand"
+                android:layout_centerHorizontal="true"
+                android:textSize="18sp"
+                />
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="3">
+
+            <ProgressBar
+                android:id="@+id/down_progress"
+                style="?android:attr/progressBarStyleHorizontal"
+                android:layout_width="400dp"
+                android:layout_height="wrap_content"
+                android:layout_centerHorizontal="true"
+                android:max="100"
+                android:visibility="invisible"/>
+
+            <TextView
+                android:id="@+id/show_size"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignRight="@id/down_progress"
+                android:layout_below="@id/down_progress"
+                android:visibility="invisible"/>
+
+            <Button
+                android:id="@+id/checkUpdate_bt"
+                android:layout_width="320dp"
+                android:layout_height="wrap_content"
+                android:layout_centerInParent="true"
+                android:background="@drawable/btn_check_now"
+                android:text="@string/btn_check_now"
+                android:textColor="@drawable/btn_check_now_tc"
+                android:textSize="22sp"
+                />
+
+            <Button
+                android:id="@+id/pause_download"
+                android:layout_width="160dp"
+                android:layout_height="wrap_content"
+                android:layout_alignLeft="@id/checkUpdate_bt"
+                android:layout_alignTop="@id/checkUpdate_bt"
+                android:textSize="22sp"
+                android:visibility="invisible"/>
+
+            <Button
+                android:id="@+id/cancel_download"
+                android:layout_width="160dp"
+                android:layout_height="wrap_content"
+                android:layout_alignRight="@id/checkUpdate_bt"
+                android:layout_alignTop="@id/checkUpdate_bt"
+                android:textSize="22sp"
+                android:visibility="invisible"/>
+        </RelativeLayout>
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="160dp"
         android:layout_height="wrap_content"
-        android:text="check"/>
+        android:layout_gravity="right"
+        android:background="#FFF">
 
-    <TextView
-        android:id="@+id/t"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"/>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="1111"/>
+    </LinearLayout>
 
-</LinearLayout>
+</android.support.v4.widget.DrawerLayout>
