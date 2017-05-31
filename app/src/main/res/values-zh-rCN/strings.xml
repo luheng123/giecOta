@@ -61,10 +61,8 @@
 	<string name="CIEA_title">下载升级包</string>
 	<string name="phone_model">型号：</string>
     <string name="btn_check_now">检查更新</string>
-    <string-array name="menu_items">
-        <item name="auto_check">自动检查更新</item>
-    </string-array>
     <string name="tv_update_log_tittle1">当前版本更新日志</string>
 	<string name="bt_pause">暂停</string>
 	<string name="bt_cancel">取消</string>
+	<string name="bt_continue">继续</string>
 </resources>

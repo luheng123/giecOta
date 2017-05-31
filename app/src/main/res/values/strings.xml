@@ -58,14 +58,10 @@ which will provide the latest features and improvements.\nPlease be patient as t
     <string name="version_number_tittle">ANDROID %1$s</string>
     <string name="phone_model">Model：</string>
     <string name="btn_check_now">Check for Updates</string>
-    <string-array name="menu_items">
-        <item name="auto_check">Updates Automatically</item>
-
-
-    </string-array>
     <string name="tv_update_log_tittle1">The current version update log</string>
     <string name="tv_update_log_tittle2">Android 7.0</string>
     <string name="bt_pause">pause</string>
     <string name="bt_cancel">cancel</string>
+    <string name="bt_continue">continue</string>
     <!-- end -->
 </resources>

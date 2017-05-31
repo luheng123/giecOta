@@ -20,6 +20,7 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.widget.Button;
@@ -41,14 +42,14 @@ import com.luh.giec.giecota.util.MyApplication;
 import com.luh.giec.giecota.util.SystemUtils;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
-    public final static String CURRENT_VERSION = "1.0.8";
+    public final static String CURRENT_VERSION = "1.0.0";
     public final static String DOWNLOAD_URL = "http://10.0.2.2/";
     private ProgressDialog progressDialog;
-    SharedPreferences prefs;
+    private SharedPreferences prefs;
     private ProgressBar progressBar;
     private DownloadTask downloadTask;
     private long firstTime = 0;
-    Button pauseDownload;
+    private Button pauseDownload;
     private DrawerLayout mDrawerLayout;
     private ImageButton btn_menu;
     private Button checkUpdate_bt;
@@ -95,6 +96,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        Intent getIntent = getIntent();
+        boolean canUpdate = getIntent.getBooleanExtra("canUpdate", false);
+
+        Log.d("luh-notification", "can update =" + canUpdate);
+
         //初始化控件
         show_size = (TextView) findViewById(R.id.show_size);
         checkUpdate_bt = (Button) findViewById(R.id.checkUpdate_bt);
@@ -129,6 +135,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             ActivityCompat.requestPermissions(MainActivity.this, new String[]{Manifest.permission
                     .WRITE_EXTERNAL_STORAGE}, 1);
         }
+        if (canUpdate){
+            showNeedUpdateDialog();
+        }
+
 
 
     }
@@ -138,20 +148,15 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         switch (v.getId()) {
             case R.id.checkUpdate_bt:
                 getRemoteJson();
+//                Intent intent = new Intent(this, DownloadService.class);
+//                startService(intent);
                 break;
             case R.id.cancel_download:
                 String downloadUrl = prefs.getString("url", null);
                 if (downloadUrl != null) {
-                    if (downloadTask != null) {
-                        downloadTask.pauseDownload();
-                        String fileName = downloadUrl.substring(downloadUrl.lastIndexOf("/"));
-                        String directory = Environment.getExternalStoragePublicDirectory
-                                (Environment.DIRECTORY_DOWNLOADS).getPath();
-                        File file = new File(directory + fileName);
-                        if (file.exists()) {
-                            file.delete();
-                        }
-                    } else {
+                    if (downloadTask != null) {//正在下载时点击取消
+                        downloadTask.cancelDownload();
+                    } else {//暂停时点击取消
                         String fileName = downloadUrl.substring(downloadUrl.lastIndexOf("/"));
                         String directory = Environment.getExternalStoragePublicDirectory
                                 (Environment.DIRECTORY_DOWNLOADS).getPath();
@@ -167,15 +172,18 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 progressBar.setVisibility(View.INVISIBLE);
                 pauseDownload.setVisibility(View.INVISIBLE);
                 checkUpdate_bt.setVisibility(View.VISIBLE);
+                pauseDownload.setText(R.string.bt_pause);
                 show_size.setVisibility(View.INVISIBLE);
                 break;
             case R.id.pause_download:
                 if (downloadTask != null) {
                     downloadTask.pauseDownload();
+                    pauseDownload.setText(R.string.bt_continue);
                 } else {
                     downloadTask = new DownloadTask(listener);
                     downloadTask.execute(prefs.getString("url", null));
                     getNotificationManager().notify(1, getNotification("Downloading...", 0));
+                    pauseDownload.setText(R.string.bt_pause);
                 }
                 break;
             case R.id.btn_menu:
@@ -207,7 +215,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
      * 展示一个是否升级的对话框
      */
     private void showNeedUpdateDialog() {
-        if (isNeedUpdate(CURRENT_VERSION, prefs.getString("version", null))) {
+        if (SystemUtils.isNeedUpdate(CURRENT_VERSION, prefs.getString("version", null))) {
 
             AlertDialog.Builder dialog = new AlertDialog.Builder(this);
             dialog.setTitle("检查到新版本");
@@ -238,13 +246,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
     }
 
-    /**
-     * 与远程版本进行比较判断是否需要升级
-     */
-    private boolean isNeedUpdate(String currentVersion, String remoteVersion) {
-        return remoteVersion != null && currentVersion != null && currentVersion.compareTo
-                (remoteVersion) < 0;
-    }
 
     /**
      * 访问服务器下载当前版本对应的Json文件
