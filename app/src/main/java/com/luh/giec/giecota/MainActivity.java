@@ -54,14 +54,17 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private ImageButton btn_menu;
     private Button checkUpdate_bt;
     private Button cancelDownload;
-    private TextView tv_version_tittle, tv_phoneBrand, tv_phoneModel, show_size;
+    private TextView tv_version_tittle, tv_phoneBrand, tv_phoneModel, show_size,
+            tv_update_frequency;
     private String versionName, phoneBrand, phoneModel;
+    private int checkHour;
 
 
     private DownloadListener listener = new DownloadListener() {
         @Override
         public void onProgress(Integer... values) {
-            getNotificationManager().notify(1, getNotification("Downloading...", values[0]));
+            getNotificationManager().notify(1, getNotification(MainActivity.this.getResources()
+                    .getString(R.string.Downloading), values[0]));
             progressBar.setProgress(values[0]);
             show_size.setText(values[1] + "/" + values[2] + " MB");
         }
@@ -69,15 +72,16 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         @Override
         public void onSuccess() {
             downloadTask = null;
-            getNotificationManager().notify(1, getNotification("Download Success,please check " +
-                    "and" + " install", -1));
+            getNotificationManager().notify(1, getNotification(MainActivity.this.getResources()
+                    .getString(R.string.download_success), -1));
 
         }
 
         @Override
         public void onFailed() {
             downloadTask = null;
-            getNotificationManager().notify(1, getNotification("Download Failed", -1));
+            getNotificationManager().notify(1, getNotification(MainActivity.this.getResources()
+                    .getString(R.string.download_fail), -1));
         }
 
         @Override
@@ -103,6 +107,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         //初始化控件
         show_size = (TextView) findViewById(R.id.show_size);
+        tv_update_frequency = (TextView) findViewById(R.id.tv_update_frequency);
         checkUpdate_bt = (Button) findViewById(R.id.checkUpdate_bt);
         progressBar = (ProgressBar) findViewById(R.id.down_progress);
         cancelDownload = (Button) findViewById(R.id.cancel_download);
@@ -118,6 +123,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         cancelDownload.setOnClickListener(this);
         pauseDownload.setOnClickListener(this);
         btn_menu.setOnClickListener(this);
+        tv_update_frequency.setOnClickListener(this);
 
         versionName = SystemUtils.getBuildVersion();
         phoneModel = SystemUtils.getPhoneModel();
@@ -135,10 +141,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             ActivityCompat.requestPermissions(MainActivity.this, new String[]{Manifest.permission
                     .WRITE_EXTERNAL_STORAGE}, 1);
         }
-        if (canUpdate){
+        if (canUpdate) {
             showNeedUpdateDialog();
         }
-
 
 
     }
@@ -148,8 +153,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         switch (v.getId()) {
             case R.id.checkUpdate_bt:
                 getRemoteJson();
-//                Intent intent = new Intent(this, DownloadService.class);
-//                startService(intent);
                 break;
             case R.id.cancel_download:
                 String downloadUrl = prefs.getString("url", null);
@@ -189,6 +192,25 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             case R.id.btn_menu:
                 mDrawerLayout.openDrawer(GravityCompat.END);
                 break;
+            case R.id.tv_update_frequency:
+                int h = prefs.getInt("frequency", 8);
+                switch (h) {
+                    case 4:
+                        h = 0;
+                        break;
+                    case 8:
+                        h = 1;
+                        break;
+                    case 12:
+                        h = 2;
+                        break;
+                    case 24:
+                        h = 3;
+                        break;
+                    default:
+                        break;
+                }
+                showUpdateFrequencyDailog(h);
             default:
                 break;
         }
@@ -202,12 +224,69 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             case 1:
                 if (grantResults.length > 0 && grantResults[0] != PackageManager
                         .PERMISSION_GRANTED) {
-                    Toast.makeText(this, "拒绝权限将无法使用程序", Toast.LENGTH_LONG).show();
+                    Toast.makeText(this, R.string.Denial_permission, Toast.LENGTH_LONG).show();
                     finish();
                 }
                 break;
             default:
         }
+    }
+
+
+    /**
+     * 展示自动跟新选项dailog
+     */
+    private void showUpdateFrequencyDailog(int hour) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+
+        builder.setTitle(R.string.Update_Dialog_Title);
+        String[] hourList = {"4 " + MainActivity.this.getResources().getString(R.string
+                .frequency_dialog_hour), "8 " + MainActivity.this.getResources().getString(R
+                .string.frequency_dialog_hour), "12 " + MainActivity.this.getResources()
+                .getString(R.string.frequency_dialog_hour), "24 " + MainActivity.this
+                .getResources().getString(R.string.frequency_dialog_hour)};
+
+        builder.setSingleChoiceItems(hourList, hour, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                switch (which) {
+                    case 0:
+                        checkHour = 4;
+                        break;
+                    case 1:
+                        checkHour = 8;
+                        break;
+                    case 2:
+                        checkHour = 12;
+                        break;
+                    case 3:
+                        checkHour = 24;
+                        break;
+                    default:
+                        break;
+                }
+            }
+        });
+        builder.setPositiveButton(R.string.frequency_dialog_Positive, new DialogInterface
+                .OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences
+                        (MainActivity.this).edit();
+                editor.putInt("frequency", checkHour);
+                Log.d("luh--", "onClick: " + checkHour);
+                editor.apply();
+                Intent intent = new Intent(MainActivity.this, DownloadService.class);
+                startService(intent);
+            }
+        });
+        builder.setNegativeButton(R.string.bt_cancel, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+
+            }
+        });
+        builder.show();
     }
 
 
@@ -218,10 +297,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         if (SystemUtils.isNeedUpdate(CURRENT_VERSION, prefs.getString("version", null))) {
 
             AlertDialog.Builder dialog = new AlertDialog.Builder(this);
-            dialog.setTitle("检查到新版本");
+            dialog.setTitle(R.string.Update_Dialog_Title);
             dialog.setMessage(prefs.getString("description", null));
             dialog.setCancelable(false);
-            dialog.setPositiveButton("升级", new DialogInterface.OnClickListener() {
+            dialog.setPositiveButton(R.string.bt_update, new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
 
@@ -232,17 +311,19 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     checkUpdate_bt.setVisibility(View.INVISIBLE);
                     progressBar.setVisibility(View.VISIBLE);
                     show_size.setVisibility(View.VISIBLE);
-                    getNotificationManager().notify(1, getNotification("Downloading...", 0));
+                    getNotificationManager().notify(1, getNotification(MainActivity.this
+                            .getResources().getString(R.string.Downloading), 0));
                 }
             });
-            dialog.setNegativeButton("取消", new DialogInterface.OnClickListener() {
+            dialog.setNegativeButton(R.string.bt_cancel, new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
                 }
             });
             dialog.show();
         } else {
-            Toast.makeText(MainActivity.this, "无可用升级", Toast.LENGTH_SHORT).show();
+            Toast.makeText(MainActivity.this, R.string.no_useable_update, Toast.LENGTH_SHORT)
+                    .show();
         }
     }
 
@@ -262,8 +343,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     @Override
                     public void run() {
                         closeProgressDialog();
-                        Toast.makeText(MyApplication.getContext(), "无网络", Toast.LENGTH_SHORT)
-                                .show();
+                        Toast.makeText(MyApplication.getContext(), R.string.no_internation, Toast
+                                .LENGTH_SHORT).show();
                     }
                 });
             }
@@ -291,7 +372,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private void showProgressDialog() {
         if (progressDialog == null) {
             progressDialog = new ProgressDialog(this);
-            progressDialog.setMessage("正在从服务器获取更新信息");
+            progressDialog.setMessage(this.getResources().getString(R.string.showProgress_Dialog));
             progressDialog.setCanceledOnTouchOutside(false);
         }
         progressDialog.show();
@@ -336,7 +417,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         if (keyCode == KeyEvent.KEYCODE_BACK && event.getAction() == KeyEvent.ACTION_DOWN) {
             if (System.currentTimeMillis() - firstTime > 2000) {
-                Toast.makeText(MainActivity.this, "再按一次退出程序并停止下载", Toast.LENGTH_SHORT).show();
+                Toast.makeText(MainActivity.this, R.string.press_exit, Toast.LENGTH_SHORT).show();
                 firstTime = System.currentTimeMillis();
             } else {
                 if (downloadTask != null) {

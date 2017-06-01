@@ -1,6 +1,5 @@
 <resources>
     <string name="app_name">GiecOta</string>
-    <string name="title_activity_download_dialog">Update...</string>
     <!--  changed -->
     <string name="permlab_showUI">Show UI for firmware update.</string>
     <string name="permdesc_shwoUI">Show UI for firmware update.</string>
@@ -28,7 +27,6 @@
     <string name="update_failed">Firmware update failed!</string>
     <!--  changed -->
     <string name="state_idle">State: Idle</string>
-    <string name="downloading">Downloading</string>
     <string name="ota_update">An update has been found!\nYour tablet is ready to get even better with this upgrade\n
 which will provide the latest features and improvements.\nPlease be patient as the tablet receives a system software update.\n</string>
     <string name="ota_package_version">Upgrade package version </string>
@@ -58,10 +56,25 @@ which will provide the latest features and improvements.\nPlease be patient as t
     <string name="version_number_tittle">ANDROID %1$s</string>
     <string name="phone_model">Model：</string>
     <string name="btn_check_now">Check for Updates</string>
-    <string name="tv_update_log_tittle1">The current version update log</string>
     <string name="tv_update_log_tittle2">Android 7.0</string>
     <string name="bt_pause">pause</string>
     <string name="bt_cancel">cancel</string>
     <string name="bt_continue">continue</string>
+    <string name="bt_update">update</string>
+    <string name="tv_update_frequency">update frequency</string>
+    <string name="Update_Dialog_Title">new version</string>
+    <string name="frequency_dialog_Title">check update frequency</string>
+    <string name="frequency_dialog_Positive">ok</string>
+
+
+    <string name="press_exit">Press again will exit the program and stop download</string>
+    <string name="showProgress_Dialog">Updates are being received</string>
+    <string name="Denial_permission">Denial of permission will not be able to use the program</string>
+    <string name="no_useable_update">latest version now</string>
+    <string name="no_internation">No Internet connection</string>
+    <string name="Downloading">Downloading...</string>
+    <string name="download_success">Download Success,please check and install</string>
+    <string name="download_fail">Download Failed</string>
+    <string name="frequency_dialog_hour">hour</string>
     <!-- end -->
 </resources>

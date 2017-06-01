@@ -8,6 +8,7 @@ import android.app.Service;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.BitmapFactory;
+import android.os.Environment;
 import android.os.IBinder;
 import android.os.SystemClock;
 import android.preference.PreferenceManager;
@@ -18,6 +19,7 @@ import com.luh.giec.giecota.util.HttpUtil;
 import com.luh.giec.giecota.util.JsonUtil;
 import com.luh.giec.giecota.util.SystemUtils;
 
+import java.io.File;
 import java.io.IOException;
 
 import okhttp3.Call;
@@ -38,33 +40,45 @@ public class DownloadService extends Service {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         checkJson();
+
+        //检查更新频率
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+        int hour = prefs.getInt("frequency", 8);
+
         AlarmManager manager = (AlarmManager) getSystemService(ALARM_SERVICE);
-        int mTime = 1000 * 5;
+        int mTime = 1000 * 60 * 60 * hour;
         long triggerAtTime = SystemClock.elapsedRealtime() + mTime;
         Intent i = new Intent(this, DownloadService.class);
         PendingIntent pi = PendingIntent.getService(this, 0, i, 0);
         manager.cancel(pi);
         manager.set(AlarmManager.ELAPSED_REALTIME_WAKEUP, triggerAtTime, pi);
-        //检查更新逻辑
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+
+        //判断是否需要更新还是已经更新完毕
         String remoteVersion = prefs.getString("version", null);
         if (SystemUtils.isNeedUpdate(CURRENT_VERSION, remoteVersion)) {
-            Intent intentDownload=new Intent(this,MainActivity.class);
-            intentDownload.putExtra("canUpdate",true);
-            PendingIntent piDowndload=PendingIntent.getActivity(this,0,intentDownload,0);
+            Intent intentDownload = new Intent(this, MainActivity.class);
+            intentDownload.putExtra("canUpdate", true);
+            PendingIntent piDowndload = PendingIntent.getActivity(this, 0, intentDownload, 0);
             NotificationManager managerNotif = (NotificationManager) getSystemService
                     (NOTIFICATION_SERVICE);
-            Notification notification=new NotificationCompat.Builder(this)
-                    .setContentTitle("system update")
-                    .setContentText("new version to update")
-                    .setWhen(System.currentTimeMillis())
-                    .setSmallIcon(R.mipmap.ic_launcher)
-                    .setLargeIcon(BitmapFactory.decodeResource(getResources(), R.mipmap.ic_launcher))
-                    .setContentIntent(piDowndload)
-                    .setAutoCancel(true)
-                    .build();
-            managerNotif.notify(2,notification);
+            Notification notification = new NotificationCompat.Builder(this).setContentTitle
+                    ("system update").setContentText("new version to update").setWhen(System
+                    .currentTimeMillis()).setSmallIcon(R.mipmap.ic_launcher).setLargeIcon
+                    (BitmapFactory.decodeResource(getResources(), R.mipmap.ic_launcher))
+                    .setContentIntent(piDowndload).setAutoCancel(true).build();
+            managerNotif.notify(2, notification);
 
+        } else {
+            String downloadUrl = prefs.getString("url", null);
+            if (downloadUrl != null) {
+                String fileName = downloadUrl.substring(downloadUrl.lastIndexOf("/"));
+                String directory = Environment.getExternalStoragePublicDirectory(Environment
+                        .DIRECTORY_DOWNLOADS).getPath();
+                File file = new File(directory + fileName);
+                if (file.exists()) {
+                    file.delete();
+                }
+            }
         }
         return super.onStartCommand(intent, flags, startId);
     }

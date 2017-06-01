@@ -1,4 +1,4 @@
-package com.luh.giec.giecota;
+package com.luh.giec.giecota.util;
 
 import android.content.Context;
 
