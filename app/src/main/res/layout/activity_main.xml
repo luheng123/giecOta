@@ -129,6 +129,7 @@
             android:layout_marginLeft="12dp"
             android:gravity="center_vertical"
             android:text="@string/tv_update_frequency"
+            android:textColor="#000000"
             android:textSize="30sp"/>
 
         <LinearLayout
@@ -142,6 +143,7 @@
             android:layout_marginLeft="12dp"
             android:gravity="center_vertical"
             android:text="1111"
+            android:textColor="#000000"
             android:textSize="30sp"/>
 
         <LinearLayout

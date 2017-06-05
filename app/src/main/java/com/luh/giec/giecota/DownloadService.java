@@ -27,6 +27,7 @@ import okhttp3.Callback;
 import okhttp3.Response;
 
 import static com.luh.giec.giecota.MainActivity.CURRENT_VERSION;
+import static com.luh.giec.giecota.MainActivity.DIRECTORY;
 import static com.luh.giec.giecota.MainActivity.DOWNLOAD_URL;
 
 public class DownloadService extends Service {
@@ -72,9 +73,9 @@ public class DownloadService extends Service {
             String downloadUrl = prefs.getString("url", null);
             if (downloadUrl != null) {
                 String fileName = downloadUrl.substring(downloadUrl.lastIndexOf("/"));
-                String directory = Environment.getExternalStoragePublicDirectory(Environment
-                        .DIRECTORY_DOWNLOADS).getPath();
-                File file = new File(directory + fileName);
+                /*String directory = Environment.getExternalStoragePublicDirectory(Environment
+                        .DIRECTORY_DOWNLOADS).getPath();*/
+                File file = new File(DIRECTORY + fileName);
                 if (file.exists()) {
                     file.delete();
                 }

@@ -10,7 +10,8 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.BitmapFactory;
-import android.os.Environment;
+import android.os.RecoverySystem;
+import android.os.SystemProperties;
 import android.preference.PreferenceManager;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.NotificationCompat;
@@ -42,8 +43,11 @@ import com.luh.giec.giecota.util.MyApplication;
 import com.luh.giec.giecota.util.SystemUtils;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
-    public final static String CURRENT_VERSION = "1.0.0";
-    public final static String DOWNLOAD_URL = "http://10.0.2.2/";
+    public final static String CURRENT_VERSION = SystemProperties.get("ro.product.version");
+    public final static String DOWNLOAD_URL = SystemProperties.get("ro.product.ota.host");
+    //    public final static String CURRENT_VERSION = "1.0.0";
+//    public final static String DOWNLOAD_URL = "http://10.0.2.2/";
+    public final static String DIRECTORY = "/data/media/0";
     private ProgressDialog progressDialog;
     private SharedPreferences prefs;
     private ProgressBar progressBar;
@@ -57,7 +61,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private TextView tv_version_tittle, tv_phoneBrand, tv_phoneModel, show_size,
             tv_update_frequency;
     private String versionName, phoneBrand, phoneModel;
-    private int checkHour;
+    private int checkHour = 8;
 
 
     private DownloadListener listener = new DownloadListener() {
@@ -74,6 +78,16 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             downloadTask = null;
             getNotificationManager().notify(1, getNotification(MainActivity.this.getResources()
                     .getString(R.string.download_success), -1));
+            String downloadUrl = prefs.getString("url", null);
+            String fileName = downloadUrl.substring(downloadUrl.lastIndexOf("/"));
+            /* String directory = Environment.getExternalStoragePublicDirectory
+                                (Environment.DIRECTORY_DOWNLOADS).getPath();*/
+            File file = new File(DIRECTORY + fileName);
+            try {
+                RecoverySystem.installPackage(MainActivity.this, file);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
 
         }
 
@@ -161,9 +175,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         downloadTask.cancelDownload();
                     } else {//暂停时点击取消
                         String fileName = downloadUrl.substring(downloadUrl.lastIndexOf("/"));
-                        String directory = Environment.getExternalStoragePublicDirectory
-                                (Environment.DIRECTORY_DOWNLOADS).getPath();
-                        File file = new File(directory + fileName);
+                       /* String directory = Environment.getExternalStoragePublicDirectory
+                                (Environment.DIRECTORY_DOWNLOADS).getPath();*/
+                        File file = new File(DIRECTORY + fileName);
                         if (file.exists()) {
                             file.delete();
                         }

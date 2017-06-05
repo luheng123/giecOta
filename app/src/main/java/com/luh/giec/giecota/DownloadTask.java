@@ -1,24 +1,17 @@
 package com.luh.giec.giecota;
 
 import android.os.AsyncTask;
-import android.os.Bundle;
-import android.os.Environment;
-import android.os.Handler;
-import android.os.Message;
 import android.util.Log;
-
-import com.luh.giec.giecota.util.HttpUtil;
-
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.RandomAccessFile;
 
-import okhttp3.Call;
-import okhttp3.Callback;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
+
+import static com.luh.giec.giecota.MainActivity.DIRECTORY;
 
 
 /**
@@ -57,10 +50,10 @@ public class DownloadTask extends AsyncTask<String, Integer, Integer> {
             long downloadedLength = 0;//已下载的长度
             String downloadUrl = params[0];
             String fileName = downloadUrl.substring(downloadUrl.lastIndexOf("/"));
-            String directory = Environment.getExternalStoragePublicDirectory(Environment
-                    .DIRECTORY_DOWNLOADS).getPath();
-            file = new File(directory + fileName);
-            Log.d(TAG, "file路径" + directory + fileName);
+            /* String directory = Environment.getExternalStoragePublicDirectory
+                                (Environment.DIRECTORY_DOWNLOADS).getPath();*/
+            file = new File(DIRECTORY + fileName);
+            Log.d(TAG, "file路径" + DIRECTORY + fileName);
             if (file.exists()) {
                 downloadedLength = file.length();
                 Log.d(TAG, "file exists");
