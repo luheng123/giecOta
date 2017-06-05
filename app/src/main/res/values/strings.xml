@@ -24,5 +24,6 @@
     <string name="download_success">Download Success,please check and install</string>
     <string name="download_fail">Download Failed</string>
     <string name="frequency_dialog_hour">hour</string>
+    <string name="bt_version_information">version information</string>
     <!-- end -->
 </resources>

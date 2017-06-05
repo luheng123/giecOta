@@ -31,6 +31,7 @@ import static com.luh.giec.giecota.MainActivity.DIRECTORY;
 import static com.luh.giec.giecota.MainActivity.DOWNLOAD_URL;
 
 public class DownloadService extends Service {
+    private boolean isShowNotify = false;
 
 
     @Override
@@ -40,7 +41,7 @@ public class DownloadService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        checkJson();
+
 
         //检查更新频率
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
@@ -54,21 +55,25 @@ public class DownloadService extends Service {
         manager.cancel(pi);
         manager.set(AlarmManager.ELAPSED_REALTIME_WAKEUP, triggerAtTime, pi);
 
-        //判断是否需要更新还是已经更新完毕
-        String remoteVersion = prefs.getString("version", null);
-        if (SystemUtils.isNeedUpdate(CURRENT_VERSION, remoteVersion)) {
-            Intent intentDownload = new Intent(this, MainActivity.class);
-            intentDownload.putExtra("canUpdate", true);
-            PendingIntent piDowndload = PendingIntent.getActivity(this, 0, intentDownload, 0);
-            NotificationManager managerNotif = (NotificationManager) getSystemService
-                    (NOTIFICATION_SERVICE);
-            Notification notification = new NotificationCompat.Builder(this).setContentTitle
-                    ("system update").setContentText("new version to update").setWhen(System
-                    .currentTimeMillis()).setSmallIcon(R.mipmap.ic_launcher).setLargeIcon
-                    (BitmapFactory.decodeResource(getResources(), R.mipmap.ic_launcher))
-                    .setContentIntent(piDowndload).setAutoCancel(true).build();
-            managerNotif.notify(2, notification);
+        if (checkJson()) {
+            Log.d("luh-service", "checkJson: true");
+            //判断是否需要更新还是已经更新完毕
+            String remoteVersion = prefs.getString("version", null);
+            if (SystemUtils.isNeedUpdate(CURRENT_VERSION, remoteVersion)) {
+                Intent intentDownload = new Intent(DownloadService.this, MainActivity.class);
+                intentDownload.putExtra("canUpdate", true);
+                Log.d("luh-notification", "onStartCommand:" + " canUpdate");
+                PendingIntent piDownload = PendingIntent.getActivity(this, 0, intentDownload, 0);
+                NotificationManager managerNotify = (NotificationManager) getSystemService
+                        (NOTIFICATION_SERVICE);
+                Notification notification = new NotificationCompat.Builder(this).setContentTitle
+                        ("system update").setContentText("new version to update").setWhen(System
+                        .currentTimeMillis()).setSmallIcon(R.mipmap.ic_launcher).setLargeIcon
+                        (BitmapFactory.decodeResource(getResources(), R.mipmap.ic_launcher))
+                        .setContentIntent(piDownload).setAutoCancel(true).build();
+                managerNotify.notify(2, notification);
 
+            }
         } else {
             String downloadUrl = prefs.getString("url", null);
             if (downloadUrl != null) {
@@ -84,7 +89,7 @@ public class DownloadService extends Service {
         return super.onStartCommand(intent, flags, startId);
     }
 
-    private void checkJson() {
+    private boolean checkJson() {
         Log.d("luh-service", "checkJson");
         HttpUtil.sendOkHttpRequest(DOWNLOAD_URL + CURRENT_VERSION + "/update.json", 0, new
                 Callback() {
@@ -98,8 +103,10 @@ public class DownloadService extends Service {
                 if (response != null && response.isSuccessful()) {
                     String responseText = response.body().string();
                     JsonUtil.parseAndSaveJson(responseText);
+                    isShowNotify = true;
                 }
             }
         });
+        return isShowNotify;
     }
 }

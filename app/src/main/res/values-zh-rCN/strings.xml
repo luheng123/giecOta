@@ -42,6 +42,7 @@
     <string name="download_success">下载成功，点击安装</string>
     <string name="tv_update_log_tittle2">Android 7.0</string>
     <string name="version_number_tittle">ANDROID %1$s</string>
+    <string name="bt_version_information">版本信息</string>
 
 
     <!--end-->
