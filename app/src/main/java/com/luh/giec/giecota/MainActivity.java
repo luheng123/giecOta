@@ -140,12 +140,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-//        Intent serviceIntent = getIntent();
-//
-//        boolean canUpdate = getIntent().getBooleanExtra("canUpdate", false);
-//
-//        Log.d("luh-notification", "can update =" + canUpdate);
-
 
         //初始化控件
         show_size = (TextView) findViewById(R.id.show_size);
@@ -185,9 +179,20 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             ActivityCompat.requestPermissions(MainActivity.this, new String[]{Manifest.permission
                     .WRITE_EXTERNAL_STORAGE}, 1);
         }
-//        if (canUpdate) {
-//            showNeedUpdateDialog();
-//        }
+
+        if (savedInstanceState != null) {
+            if (savedInstanceState.getBoolean("destroyInDownload")) {
+                downloadTask = new DownloadTask(listener);
+                downloadTask.execute(prefs.getString("url", null));
+                pauseDownload.setVisibility(View.VISIBLE);
+                cancelDownload.setVisibility(View.VISIBLE);
+                checkUpdate_bt.setVisibility(View.INVISIBLE);
+                progressBar.setVisibility(View.VISIBLE);
+                show_size.setVisibility(View.VISIBLE);
+                getNotificationManager().notify(1, getNotification(MainActivity.this.getResources
+                        ().getString(R.string.Downloading), 0));
+            }
+        }
 
 
     }
@@ -203,6 +208,19 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             showNeedUpdateDialog();
         }
     }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        if (downloadTask != null) {
+            downloadTask.pauseDownload();
+            outState.putBoolean("destroyInDownload", true);
+            getNotificationManager().cancel(1);
+        } else {
+            outState.putBoolean("destroyInDownload", false);
+        }
+    }
+
 
     @Override
     public void onClick(View v) {
@@ -226,6 +244,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     }
                     getNotificationManager().cancel(1);
                 }
+                show_size.setText("0" + "/" + "0" + " MB");
                 progressBar.setProgress(0);
                 cancelDownload.setVisibility(View.INVISIBLE);
                 progressBar.setVisibility(View.INVISIBLE);
