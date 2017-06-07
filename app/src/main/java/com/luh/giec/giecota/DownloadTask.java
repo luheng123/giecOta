@@ -2,6 +2,7 @@ package com.luh.giec.giecota;
 
 import android.os.AsyncTask;
 import android.util.Log;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -18,13 +19,12 @@ import static com.luh.giec.giecota.MainActivity.DIRECTORY;
  * Created by Administrator on 2017/5/23.
  */
 
-public class DownloadTask extends AsyncTask<String, Integer, Integer> {
+class DownloadTask extends AsyncTask<String, Integer, Integer> {
 
-    private static String TAG = "luh-giec";
-    public static final int TYPE_SUCCESS = 0;
-    public static final int TYPE_FAILED = 1;
-    public static final int TYPE_PAUSED = 2;
-    public static final int TYPE_CANCELED = 3;
+    private static final int TYPE_SUCCESS = 0;
+    private static final int TYPE_FAILED = 1;
+    private static final int TYPE_PAUSED = 2;
+    private static final int TYPE_CANCELED = 3;
 
     private DownloadListener listener;
 
@@ -34,10 +34,8 @@ public class DownloadTask extends AsyncTask<String, Integer, Integer> {
 
     private int lastProgress;
 
-    long contentLength;
 
-
-    public DownloadTask(DownloadListener listener) {
+    DownloadTask(DownloadListener listener) {
         this.listener = listener;
     }
 
@@ -53,12 +51,13 @@ public class DownloadTask extends AsyncTask<String, Integer, Integer> {
             /* String directory = Environment.getExternalStoragePublicDirectory
                                 (Environment.DIRECTORY_DOWNLOADS).getPath();*/
             file = new File(DIRECTORY + fileName);
+            String TAG = "luh-giec";
             Log.d(TAG, "file路径" + DIRECTORY + fileName);
             if (file.exists()) {
                 downloadedLength = file.length();
-                Log.d(TAG, "file exists");
+                Log.d(TAG, "file exists" + " downloadedLength= " + downloadedLength);
             }
-            contentLength = getContentLength(downloadUrl);
+            long contentLength = getContentLength(downloadUrl);
             Log.d(TAG, "contentLength=" + contentLength);
             if (contentLength == 0) {
                 Log.d(TAG, "contentLength=0");
@@ -67,6 +66,10 @@ public class DownloadTask extends AsyncTask<String, Integer, Integer> {
                 Log.d(TAG, "contentLength==downloadedLength没有进行下载，已存在");
                 return TYPE_SUCCESS;
             }
+            if (downloadedLength > contentLength) {
+                return TYPE_FAILED;
+            }
+
             //downloadStart
             OkHttpClient client = new OkHttpClient();
             Request request = new Request.Builder().addHeader("RANGE", "bytes=" +
@@ -148,11 +151,11 @@ public class DownloadTask extends AsyncTask<String, Integer, Integer> {
         }
     }
 
-    public void pauseDownload() {
+    void pauseDownload() {
         isPaused = true;
     }
 
-    public void cancelDownload() {
+    void cancelDownload() {
         isCanceled = true;
     }
 

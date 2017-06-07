@@ -47,13 +47,6 @@ public class DownloadService extends Service {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
         int hour = prefs.getInt("frequency", 8);
 
-        AlarmManager manager = (AlarmManager) getSystemService(ALARM_SERVICE);
-        int mTime = 1000 * 60 * 60 * hour;
-        long triggerAtTime = SystemClock.elapsedRealtime() + mTime;
-        Intent i = new Intent(this, DownloadService.class);
-        PendingIntent pi = PendingIntent.getService(this, 0, i, 0);
-        manager.cancel(pi);
-        manager.set(AlarmManager.ELAPSED_REALTIME_WAKEUP, triggerAtTime, pi);
 
         if (checkJson()) {
             Log.d("luh-service", "checkJson: true");
@@ -86,6 +79,15 @@ public class DownloadService extends Service {
                 }
             }
         }
+
+        AlarmManager manager = (AlarmManager) getSystemService(ALARM_SERVICE);
+        int mTime = 1000 * 60 * 60 * hour;
+        long triggerAtTime = SystemClock.elapsedRealtime() + mTime;
+        Intent i = new Intent(this, DownloadService.class);
+        PendingIntent pi = PendingIntent.getService(this, 0, i, 0);
+        manager.cancel(pi);
+        manager.set(AlarmManager.ELAPSED_REALTIME_WAKEUP, triggerAtTime, pi);
+
         return super.onStartCommand(intent, flags, startId);
     }
 

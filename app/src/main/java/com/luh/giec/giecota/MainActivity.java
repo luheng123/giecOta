@@ -48,7 +48,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     public final static String DOWNLOAD_URL = SystemProperties.get("ro.product.ota.host");
     public final static String DIRECTORY = "/data/media/0";
 
-//    public final static String CURRENT_VERSION = "1.0.1";
+    //    public final static String CURRENT_VERSION = "1.0.1";
 //    public final static String DOWNLOAD_URL = "http://10.0.2.2/";
 //    public final static String DIRECTORY = Environment.getExternalStoragePublicDirectory
 //            (Environment.DIRECTORY_DOWNLOADS).getPath();
@@ -71,6 +71,23 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private DownloadListener listener = new DownloadListener() {
         @Override
         public void onProgress(Integer... values) {
+            if (values[0] > 100) {
+                String downloadUrl = prefs.getString("url", null);
+                downloadTask.cancelDownload();
+                String fileName = downloadUrl.substring(downloadUrl.lastIndexOf("/"));
+                File file = new File(DIRECTORY + fileName);
+                if (file.exists()) {
+                    file.delete();
+                }
+                getNotificationManager().cancel(1);
+                progressBar.setProgress(0);
+                cancelDownload.setVisibility(View.INVISIBLE);
+                progressBar.setVisibility(View.INVISIBLE);
+                pauseDownload.setVisibility(View.INVISIBLE);
+                checkUpdate_bt.setVisibility(View.VISIBLE);
+                pauseDownload.setText(R.string.bt_pause);
+                show_size.setVisibility(View.INVISIBLE);
+            }
             getNotificationManager().notify(1, getNotification(MainActivity.this.getResources()
                     .getString(R.string.Downloading), values[0]));
             progressBar.setProgress(values[0]);
@@ -124,10 +141,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         setContentView(R.layout.activity_main);
 
 //        Intent serviceIntent = getIntent();
-
-        boolean canUpdate = getIntent().getBooleanExtra("canUpdate", false);
-
-        Log.d("luh-notification", "can update =" + canUpdate);
+//
+//        boolean canUpdate = getIntent().getBooleanExtra("canUpdate", false);
+//
+//        Log.d("luh-notification", "can update =" + canUpdate);
 
 
         //初始化控件
@@ -168,11 +185,23 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             ActivityCompat.requestPermissions(MainActivity.this, new String[]{Manifest.permission
                     .WRITE_EXTERNAL_STORAGE}, 1);
         }
+//        if (canUpdate) {
+//            showNeedUpdateDialog();
+//        }
+
+
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        boolean canUpdate = getIntent().getBooleanExtra("canUpdate", false);
+
+        Log.d("luh-notification", "can update =" + canUpdate);
         if (canUpdate) {
             showNeedUpdateDialog();
         }
-
-
     }
 
     @Override
@@ -423,12 +452,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
     }
 
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-//        unbindService(connection);
-    }
-
     private NotificationManager getNotificationManager() {
         return (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
     }
@@ -461,7 +484,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 }
                 getNotificationManager().cancel(1);
                 finish();
-                System.exit(0);
+//                System.exit(0);
             }
             return true;
         }
