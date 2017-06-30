@@ -5,8 +5,11 @@ import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.ProgressDialog;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.BitmapFactory;
@@ -48,7 +51,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     public final static String DOWNLOAD_URL = SystemProperties.get("ro.product.ota.host");
     public final static String DIRECTORY = "/data/media/0";
 
-    //    public final static String CURRENT_VERSION = "1.0.1";
+//    public final static String CURRENT_VERSION = "1.0.1";
 //    public final static String DOWNLOAD_URL = "http://10.0.2.2/";
 //    public final static String DIRECTORY = Environment.getExternalStoragePublicDirectory
 //            (Environment.DIRECTORY_DOWNLOADS).getPath();
@@ -66,6 +69,20 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             tv_update_frequency, bt_version_information;
     private String versionName, phoneBrand, phoneModel;
     private int checkHour = 8;
+
+    private static int batteryLevel = 0;
+    private IntentFilter intentFilter;
+    private BroadcastReceiver mReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if (Intent.ACTION_BATTERY_CHANGED.equals(intent.getAction())) {
+                //获取当前电量
+                batteryLevel = intent.getIntExtra("level", 0);
+
+                Log.d("MainActivity-Broadcast", "battery level is " + batteryLevel);
+            }
+        }
+    };
 
 
     private DownloadListener listener = new DownloadListener() {
@@ -102,7 +119,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             String downloadUrl = prefs.getString("url", null);
             String fileName = downloadUrl.substring(downloadUrl.lastIndexOf("/"));
             /* String directory = Environment.getExternalStoragePublicDirectory
-                                (Environment.DIRECTORY_DOWNLOADS).getPath();*/
+                          `      (Environment.DIRECTORY_DOWNLOADS).getPath();*/
             File file = new File(DIRECTORY + fileName);
             try {
                 SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences
@@ -174,6 +191,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         cancelDownload.setText(R.string.bt_cancel);
         pauseDownload.setText(R.string.bt_pause);
 
+        intentFilter = new IntentFilter();
+        intentFilter.addAction(Intent.ACTION_BATTERY_CHANGED);
+        registerReceiver(mReceiver, intentFilter);
+
         if (ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission
                 .WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(MainActivity.this, new String[]{Manifest.permission
@@ -221,6 +242,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
     }
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        unregisterReceiver(mReceiver);
+    }
 
     @Override
     public void onClick(View v) {
@@ -382,15 +408,19 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             @Override
             public void onClick(DialogInterface dialog, int which) {
 
-                downloadTask = new DownloadTask(listener);
-                downloadTask.execute(prefs.getString("url", null));
-                pauseDownload.setVisibility(View.VISIBLE);
-                cancelDownload.setVisibility(View.VISIBLE);
-                checkUpdate_bt.setVisibility(View.INVISIBLE);
-                progressBar.setVisibility(View.VISIBLE);
-                show_size.setVisibility(View.VISIBLE);
-                getNotificationManager().notify(1, getNotification(MainActivity.this.getResources
-                        ().getString(R.string.Downloading), 0));
+                if (batteryLevel >= 50) {
+                    downloadTask = new DownloadTask(listener);
+                    downloadTask.execute(prefs.getString("url", null));
+                    pauseDownload.setVisibility(View.VISIBLE);
+                    cancelDownload.setVisibility(View.VISIBLE);
+                    checkUpdate_bt.setVisibility(View.INVISIBLE);
+                    progressBar.setVisibility(View.VISIBLE);
+                    show_size.setVisibility(View.VISIBLE);
+                    getNotificationManager().notify(1, getNotification(MainActivity.this
+                            .getResources().getString(R.string.Downloading), 0));
+                } else {
+                    Toast.makeText(MainActivity.this, R.string.low_battery, Toast.LENGTH_SHORT).show();
+                }
             }
         });
         dialog.setNegativeButton(R.string.bt_cancel, new DialogInterface.OnClickListener() {

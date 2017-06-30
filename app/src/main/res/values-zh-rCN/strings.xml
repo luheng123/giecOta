@@ -43,6 +43,7 @@
     <string name="tv_update_log_tittle2">Android 7.0</string>
     <string name="version_number_tittle">ANDROID %1$s</string>
     <string name="bt_version_information">版本信息</string>
+    <string name="low_battery">电池电量高于50%才能进行升级</string>
 
 
     <!--end-->

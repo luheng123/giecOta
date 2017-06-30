@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">GiecOta</string>
+    <string name="app_name">Firmware update</string>
     <!-- add  -->
     <string name="version_number_tittle">ANDROID %1$s</string>
     <string name="phone_model">Model：</string>
@@ -25,5 +25,6 @@
     <string name="download_fail">Download Failed</string>
     <string name="frequency_dialog_hour">hour</string>
     <string name="bt_version_information">version information</string>
+    <string name="low_battery">The battery charge should above 50% to upgrade</string>
     <!-- end -->
 </resources>
